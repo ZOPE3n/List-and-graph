@@ -1,0 +1,8 @@
+--- outfile1.txt	2017-10-19 03:00:44.000000001 -0700
++++ model-outfile1.txt	2017-10-19 03:00:40.000000001 -0700
+@@ -10,4 +10,3 @@
+  three
+  twelve
+  two
+- 
+\ No newline at end of file

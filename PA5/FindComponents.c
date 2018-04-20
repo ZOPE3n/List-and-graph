@@ -1,0 +1,119 @@
+/**Mengdi Wei
+  *ID: 1538074
+  *PA5
+  *This is findComponents.c which could find connected 
+  * components of a graph
+  */
+
+#include <stdio.h> 
+#include <string.h> 
+#include <stdlib.h> 
+#include "List.h"
+#include "Graph.h"
+
+#define INF - 1
+#define MAX_LEN 250
+
+int numbers;
+int number1;
+int number2;
+char str[MAX_LEN];
+char * word;
+Graph G;
+
+int n = 0;
+//find() could find connected components and 
+//number of components of a graph
+Graph find(Graph G, List list) {
+  for (int i = 1; i <= numbers; i++) {
+    append(list, i);
+  }
+
+  DFS(G, list);
+
+  Graph graph = transpose(G);
+
+  DFS(graph, list);
+  n = 0;
+  moveFront(list);
+  while (index(list) >= 0) {
+    if (getParent(graph, get(list)) == NIL) {
+      n++;
+      insertBefore(list, -1);
+    }
+    moveNext(list);
+  }
+  return graph;
+}
+int main(int argc, char * argv[]) {
+  FILE * in ;
+  FILE * out;
+
+  if (argc != 3) {
+    fprintf(stderr, "Usage: FindPath input output\n");
+    exit(EXIT_FAILURE);
+  } in = fopen(argv[1], "r");
+  if ( in == NULL) {
+    fprintf(stderr, "Unable to read from file %s\n", argv[1]);
+    exit(EXIT_FAILURE);
+  }
+  out = fopen(argv[2], "w");
+  if (out == NULL) {
+    printf("Unable to write to file %s\n", argv[2]);
+    exit(EXIT_FAILURE);
+  }
+  //get data from the inputfile
+  fgets(str, MAX_LEN, in );
+  word = strtok(str, " \n");
+  numbers = atoi(word);
+  G = newGraph(numbers);
+  while (fscanf( in , "%d %d", & number1, & number2) == 2) {
+    if (number1 != 0) {
+      if (number2 != 0)
+        addArc(G, number1, number2);
+    }
+  }
+  fprintf(out, "Adjacency list representation of G:\n");
+  printGraph(out, G);
+  fprintf(out, "\n");
+
+  List list = newList();
+
+  Graph graph = find(G, list);
+  fprintf(out, "G contains %d strongly connected components:\n", n);
+
+  List l[n];
+  for (int i = 1; i <= n; i++) {
+    l[i] = newList();
+  }
+  
+  int num;
+  //print components out
+  for (int i = 1; i <= n; i++) {
+    fprintf(out, "Component %d:", i);
+    moveBack(list);
+    while (index(list) != -1) {
+      num = back(list);
+      if (num != -1) {
+        prepend(l[i], num);
+      }
+      deleteBack(list);
+      if (num == -1) {
+        break;
+      }
+      moveBack(list);
+    }
+    printList(out, l[i]);
+    fprintf(out, "\n");
+  }
+
+  fclose( in );
+  fclose(out);
+  //free the graph and list
+  for (int i = 1; i <= n; i++) {
+    freeList( & l[i]);
+  }
+  freeGraph( & G);
+  freeGraph( & graph);
+  freeList( & list);
+}
